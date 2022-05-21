@@ -3,14 +3,28 @@ from DBHelper.DBClass import DBClass
 from DBHelper.AllModels import *
 
 
+def findFirstFreeID(table_db):
+    stmt = DBClass().session.query(table_db).order_by(table_db.id.asc()).all()
+    count = DBClass().session.query(table_db).count()
+    mass = []
+    for i in range(1, count+1):
+        if i != stmt[i-1].id:
+            mass.append(i)
+    if len(mass) != 0:
+        count = mass[0]
+    else:
+        count += 1
+    return count
+
+
 class Saver:
     def __init__(self):
         self.dbHelper = DBClass()
 
     def addNewAccount(self, new_str):
-        count = self.dbHelper.session.query(Accounts).count()
+        count = findFirstFreeID(Accounts)
         data = json.loads(new_str)
-        user_new = Accounts(id=count + 1, login=data["login"], password=data["password"], stat_id=int(data["stat_id"]))
+        user_new = Accounts(id=count, login=data["login"], password=data["password"], stat_id=int(data["stat_id"]))
         self.dbHelper.session.add(user_new)
         self.dbHelper.session.commit()
 
@@ -41,15 +55,19 @@ class Saver:
         self.dbHelper.session.commit()
 
     def addNewGame(self, new_str):
-        count = self.dbHelper.session.query(Games).count()
+        count = findFirstFreeID(Games)
         data = json.loads(new_str)
-        game_new = Games(id=count + 1, game_name=data["game_name"], world_name=data["world_name"],
+        game_new = Games(id=count, game_name=data["game_name"], world_name=data["world_name"],
                          password=data["password"], master_id=int(data["master_id"]))
         self.dbHelper.session.add(game_new)
         self.dbHelper.session.commit()
 
     # Если игрок (не мастер) удаляет игру, то и все его персонажи, связанные с этой игрой, удаляются
     def updGameByDelCh(self, game_id, acc_id):
+        a = self.dbHelper.session.query(Character).filter_by(game_id=int(game_id), acc_id=int(acc_id)).all()
+        for i in a:
+            self.dbHelper.session.query(damage_buff).filter_by(ch_id=i.id).delete(synchronize_session=False)
+            self.dbHelper.session.query(health_buff).filter_by(ch_id=i.id).delete(synchronize_session=False)
         self.dbHelper.session.query(Character).filter_by(game_id=int(game_id), acc_id=int(acc_id)) \
             .delete(synchronize_session=False)
         self.dbHelper.session.commit()
