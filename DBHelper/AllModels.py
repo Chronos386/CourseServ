@@ -194,7 +194,7 @@ class Games(Base):
     game_name = Column(String(200))
     world_name = Column(String(200))
     password = Column(String(20))
-    master_id = Column(Integer, ForeignKey('р.id'))
+    master_id = Column(Integer, ForeignKey('accounts.id'))
 
     def __repr__(self):
         return f'{self.id} {self.game_name} {self.world_name} {self.password} {self.master_id}'

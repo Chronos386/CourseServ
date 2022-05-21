@@ -189,28 +189,33 @@ class DBClass:
         return dataTable
 
     def findGameByNamePassword(self, name, acc_pasw):
-        c = self.session.query(Games).filter_by(game_name=name, password=acc_pasw).first()
-        dataTable = json.dumps(c, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
-        data = json.loads(dataTable)
-        acc = self.session.query(Accounts).filter_by(id=int(data["master_id"])).first()
-        data["master_id"] = acc.login
-        dataTable = json.dumps(data, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
-        return dataTable
+        c = self.session.query(Games).filter_by(game_name=name, password=acc_pasw).all()
+        if len(c) != 0:
+            dataTable = json.dumps(c[0], cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
+            data = json.loads(dataTable)
+            acc = self.session.query(Accounts).filter_by(id=int(data["master_id"])).first()
+            data["master_id"] = acc.login
+            dataTable = json.dumps(data, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
+            return dataTable
+        else:
+            return "[]"
 
     def findGameByAcc(self, acc_id):
         a = self.session.query(Character).filter_by(acc_id=acc_id).all()
+        c = []
+        first_id = []
         if len(a) != 0:
-            c = self.session.query(Games).filter_by(id=a[0].game_id).all()
+            c.append(self.session.query(Games).filter_by(id=a[0].game_id).first())
             first_id = [a[0].game_id]
             for i in a:
                 if i.game_id not in first_id:
-                    c += self.session.query(Games).filter_by(id=i.game_id).all()
+                    c.append(self.session.query(Games).filter_by(id=i.game_id).first())
                     first_id.append(i.game_id)
         b = self.session.query(Games).filter_by(master_id=acc_id).all()
         if len(a) != 0:
             for i in b:
                 if i.id not in first_id:
-                    c += i
+                    c.append(i)
             dataTable = json.dumps(c, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
         else:
             dataTable = json.dumps(b, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)

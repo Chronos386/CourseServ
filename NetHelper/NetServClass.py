@@ -42,6 +42,7 @@ class NetClass:
             else:
                 counter += 1
         self.Request.RequestBody = txt[start:counter]
+        self.Request.RequestBody = self.Request.RequestBody.replace("%20", " ")
 
     def postReqAnalyse(self, data):
         try:
@@ -212,5 +213,5 @@ class NetClass:
             except socket.error:
                 pass
             else:
-                thr = Thread(target=self.give_inf, args=(client_sock, ))
+                thr = Thread(target=self.give_inf, args=(client_sock,))
                 thr.start()
