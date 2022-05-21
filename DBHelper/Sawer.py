@@ -45,11 +45,11 @@ class Saver:
         data = json.loads(new_str)
         game_new = Games(id=count + 1, game_name=data["game_name"], world_name=data["world_name"],
                          password=data["password"], master_id=int(data["master_id"]))
-        self.dbHelper.session.add(game_new)
+        self.dbHelper.session.add(game_new)  # коммент ради коммента
         self.dbHelper.session.commit()
 
     def updGameByDelCh(self, game_id, acc_id):
-        self.dbHelper.session.query(Character).filter_by(game_id=int(game_id), acc_id=int(acc_id))\
+        self.dbHelper.session.query(Character).filter_by(game_id=int(game_id), acc_id=int(acc_id)) \
             .delete(synchronize_session=False)
         self.dbHelper.session.commit()
 
