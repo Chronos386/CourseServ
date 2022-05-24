@@ -91,6 +91,10 @@ class Answerer:
         self.content = self.dbHelper.findAccByID(int(acc_id))
         cl_sock.send(self.HDRS.encode('utf-8') + self.content.encode('utf-8'))
 
+    def sendClass(self, cl_sock, acc_id):
+        self.content = self.dbHelper.findClassByID(int(acc_id))
+        cl_sock.send(self.HDRS.encode('utf-8') + self.content.encode('utf-8'))
+
     def sendExistAccByLog(self, cl_sock, acc_log):
         self.HDRS = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'
         self.content = self.dbHelper.findAccByLog(acc_log)
@@ -100,12 +104,14 @@ class Answerer:
             cl_sock.send(self.HDRS.encode('utf-8') + 'Yes'.encode('utf-8'))
         self.HDRS = 'HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\n\r\n'
 
+    def sendPicture(self, cl_sock, pict_id):
+        self.HDRS = 'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n\r\n'
+        self.content = self.dbHelper.findPictByID(pict_id)
+        cl_sock.send(self.HDRS.encode('utf-8') + self.content.encode('utf-8'))
+        self.HDRS = 'HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\n\r\n'
+
     def sendAccByLogPasw(self, cl_sock, acc_log, acc_pasw):
         self.content = self.dbHelper.findAccByLogPassword(acc_log, acc_pasw)
-        cl_sock.send(self.HDRS.encode('utf-8') + self.content.encode('utf-8'))
-
-    def sendPict(self, cl_sock, pict_id):
-        self.content = self.dbHelper.findPictByID(int(pict_id))
         cl_sock.send(self.HDRS.encode('utf-8') + self.content.encode('utf-8'))
 
     def sendDamBuffByCher(self, cl_sock, ch_id):
@@ -149,4 +155,8 @@ class Answerer:
 
     def sendOnlineAccByGame(self, cl_sock, game_id):
         self.content = self.dbHelper.findOnlineAccByGame(int(game_id))
+        cl_sock.send(self.HDRS.encode('utf-8') + self.content.encode('utf-8'))
+
+    def sendAccByGame(self, cl_sock, game_id):
+        self.content = self.dbHelper.findAccByGame(int(game_id))
         cl_sock.send(self.HDRS.encode('utf-8') + self.content.encode('utf-8'))

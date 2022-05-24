@@ -163,13 +163,17 @@ class DBClass:
         dataTable = json.dumps(c, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
         return dataTable
 
+    def findPictByID(self, pict_id):
+        c = self.session.query(pict_avatar).filter_by(id=pict_id).first()
+        return c.url
+
     def findAccByLogPassword(self, acc_log, acc_pasw):
         c = self.session.query(Accounts).filter_by(login=acc_log, password=acc_pasw).all()
         dataTable = json.dumps(c, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
         return dataTable
 
-    def findPictByID(self, pict_id):
-        c = self.session.query(pict_avatar).filter_by(id=pict_id).all()
+    def findClassByID(self, acc_id):
+        c = self.session.query(Classes).filter_by(id=acc_id).all()
         dataTable = json.dumps(c, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
         return dataTable
 
@@ -239,7 +243,30 @@ class DBClass:
     def findCharByAccGame(self, acc_id, game_id):
         c = self.session.query(Character).filter_by(acc_id=acc_id, game_id=game_id).all()
         dataTable = json.dumps(c, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
+        data = json.loads(dataTable)
+        for i in data:
+            url = self.session.query(pict_avatar).filter_by(id=int(i["pict_id"])).first()
+            i["pict_id"] = url.url
+        dataTable = json.dumps(data, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
         return dataTable
+
+    def findAccByGame(self, game_id):
+        a = self.session.query(Games).filter_by(id=game_id).first()
+        c = self.session.query(Character).filter_by(game_id=game_id).all()
+        charAcc = []
+        for i in c:
+            if i.acc_id != a.master_id and i not in charAcc:
+                charAcc.append(i)
+        accArr = []
+        if len(charAcc) != 0:
+            for i in charAcc:
+                acc = self.session.query(Accounts).filter_by(id=i.acc_id).first()
+                if acc not in accArr:
+                    accArr.append(acc)
+            dataTable = json.dumps(accArr, cls=AlchemyEncoder, ensure_ascii=False, sort_keys=True)
+            return dataTable
+        else:
+            return "[]"
 
     def findOnlineAccByGame(self, game_id):
         c = self.session.query(online_gamers).filter_by(game_id=game_id).all()

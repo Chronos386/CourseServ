@@ -78,6 +78,8 @@ class NetClass:
                                 self.answ.default(cl_sock)
                     case 3:
                         match partsBody[1]:
+                            case "class":
+                                self.answ.sendClass(cl_sock, partsBody[2])
                             case "race":
                                 self.answ.sendRase(cl_sock, partsBody[2])
                             case "var_race":
@@ -92,6 +94,8 @@ class NetClass:
                                 self.answ.sendDescr(cl_sock, partsBody[2])
                             case "account":
                                 self.answ.sendAcc(cl_sock, partsBody[2])
+                            case "picture":
+                                self.answ.sendPicture(cl_sock, partsBody[2])
                             case _:
                                 self.answ.default(cl_sock)
                     case 4:
@@ -140,7 +144,6 @@ class NetClass:
                         case "hpBuff":
                             self.answ.sendHealthBuffByCher(cl_sock, partsBody[2])
                         case "games":
-                            print("pop")
                             self.answ.sendGamesByAcc(cl_sock, partsBody[2])
                         case "characters":
                             self.answ.sendCharactersByAcc(cl_sock, partsBody[2])
@@ -151,6 +154,11 @@ class NetClass:
             case "game":
                 if len(partsBody) == 2:
                     self.answ.sendOnlineAccByGame(cl_sock, partsBody[1])
+                elif len(partsBody) == 3:
+                    if partsBody[1] == "accounts":
+                        self.answ.sendAccByGame(cl_sock, partsBody[2])
+                    else:
+                        self.answ.default(cl_sock)
                 else:
                     self.answ.default(cl_sock)
             case "exist":
@@ -177,6 +185,8 @@ class NetClass:
                         self.save.addNewAccount(self.postBody)
                     case "game":
                         self.save.addNewGame(self.postBody)
+                    case "character":
+                        self.save.addNewCharacter(self.postBody)
 
             case "update":
                 match partsBody[1]:
@@ -184,6 +194,8 @@ class NetClass:
                         self.save.updAccountPsw(self.postBody)
                     case "game":
                         self.save.updGameByDelCh(partsBody[2], self.postBody)
+                    case "character":
+                        self.save.updCharacter(self.postBody)
 
             case "delete":
                 match partsBody[1]:
@@ -191,6 +203,8 @@ class NetClass:
                         self.save.dellAccount(self.postBody)
                     case "game":
                         self.save.dellGame(self.postBody)
+                    case "character":
+                        self.save.dellCharacter(self.postBody)
             case _:
                 print("Попытка запостить кринж")
 
